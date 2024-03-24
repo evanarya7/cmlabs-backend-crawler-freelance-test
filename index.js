@@ -2,6 +2,17 @@ import * as fs from 'fs';
 import * as psl from 'psl';
 import * as puppeteer from 'puppeteer';
 
+async function startBrowser() {
+    return await puppeteer.launch({
+        headless: true,
+        args: [
+            '--no-first-run', // Skip first run tasks
+            '--disable-features=IsolateOrigins',
+            '--disable-site-isolation-trials' // Disables site isolation
+        ],
+    });
+}
+
 async function retrieveAnchorLinks(page) {
     return await page.evaluate(() => {
         const anchorList = document.querySelectorAll('a');
@@ -15,23 +26,9 @@ async function retrieveAnchorLinks(page) {
 async function visit(host) {
     host = new URL(host);
     const hostDomain = psl.parse(host.hostname).domain;
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: [
-            '--disable-gpu',
-            '--disable-dev-shm-usage',
-            '--disable-setuid-sandbox',
-            '--no-first-run',
-            '--no-sandbox',
-            '--no-zygote',
-            '--deterministic-fetch',
-            '--disable-features=IsolateOrigins',
-            '--disable-site-isolation-trials'
-        ],
-    });
-
     const pagesToVisit = [host.href];
     const visitedPages = [];
+    let browser = await startBrowser();
 
     // Iterating web pages to visit
     while (pagesToVisit.length > 0) {
@@ -73,9 +70,13 @@ async function visit(host) {
             pageHTML = await page.evaluate(() => {
                 return document.documentElement.outerHTML
             });
+
+            page.close();
         } catch (e) {
             console.error(`Failed to Open ${pageToVisit.href}`);
             console.error(e);
+            await browser.close();
+            browser = await startBrowser();
             continue;
         }
 
@@ -90,7 +91,10 @@ async function visit(host) {
                     if (anchorURL.hostname && anchorURL.host == hostDomain) {
                         // Adding the anchor URL to the queue of web pages to crawl, if it wasn't yet crawled
                         if (!visitedPages.includes(`${anchorURL.origin}${anchorURL.pathname}`) && !pagesToVisit.includes(anchorURL.href)) {
-                            pagesToVisit.push(anchorURL.href);
+                            // Select only en-id if domain is cmlabs.co
+                            if ((hostDomain == 'cmlabs.co' && anchorURL.pathname.includes('en-id')) || hostDomain != 'cmlabs.co') {
+                                pagesToVisit.push(anchorURL.href);
+                            }
                         }
                     }
                 }
@@ -139,14 +143,14 @@ async function visit(host) {
 }
 
 function main() {
-    // visit('https://cmlabs.co')
-    //     .catch((e) => {
-    //         console.error(e);
-    //     });
-    visit('https://sequence.day')
+    visit('https://cmlabs.co')
         .catch((e) => {
             console.error(e);
         });
+    // visit('https://sequence.day')
+    //     .catch((e) => {
+    //         console.error(e);
+    //     });
 }
 
 main();

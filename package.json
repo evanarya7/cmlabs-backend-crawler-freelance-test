@@ -1,0 +1,24 @@
+{
+  "name": "web-crawler",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanarya7/cmlabs-backend-crawler-freelance-test.git"
+  },
+  "author": "Evan Arya",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evanarya7/cmlabs-backend-crawler-freelance-test/issues"
+  },
+  "homepage": "https://github.com/evanarya7/cmlabs-backend-crawler-freelance-test#readme",
+  "dependencies": {
+    "psl": "^1.9.0",
+    "puppeteer": "^22.6.0"
+  }
+}

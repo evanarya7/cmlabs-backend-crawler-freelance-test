@@ -143,14 +143,18 @@ async function visit(host) {
 }
 
 function main() {
-    visit('https://cmlabs.co')
-        .catch((e) => {
-            console.error(e);
-        });
+    // visit('https://cmlabs.co')
+    //     .catch((e) => {
+    //         console.error(e);
+    //     });
     // visit('https://sequence.day')
     //     .catch((e) => {
     //         console.error(e);
     //     });
+    visit('https://kallosa.id/')
+        .catch((e) => {
+            console.error(e);
+        });
 }
 
 main();

@@ -39,7 +39,7 @@ async function visit(host) {
         let pageHTML = '';
 
         // Mark current page as visited
-        visitedPages.push(`${pageToVisit.origin}${pageToVisit.pathname}`);
+        visitedPages.push(`${pageToVisit.origin}${pageToVisit.pathname}${pageToVisit.search}`);
 
         try {
             // Load page with puppeteer
@@ -90,7 +90,7 @@ async function visit(host) {
                     // Filter anchor URLs by domain
                     if (anchorURL.hostname && anchorURL.host == hostDomain) {
                         // Adding the anchor URL to the queue of web pages to crawl, if it wasn't yet crawled
-                        if (!visitedPages.includes(`${anchorURL.origin}${anchorURL.pathname}`) && !pagesToVisit.includes(anchorURL.href)) {
+                        if (!visitedPages.includes(`${anchorURL.origin}${anchorURL.pathname}${anchorURL.search}`) && !pagesToVisit.includes(anchorURL.href)) {
                             // Select only en-id if domain is cmlabs.co
                             if ((hostDomain == 'cmlabs.co' && anchorURL.pathname.includes('en-id')) || hostDomain != 'cmlabs.co') {
                                 pagesToVisit.push(anchorURL.href);
@@ -107,7 +107,7 @@ async function visit(host) {
             // Assemble result dir and filename
             const pathnameSplit = pageToVisit.pathname.split('/');
             const lastPath = pathnameSplit.pop();
-            const filename = lastPath ? `${lastPath}.html` : 'index.html';
+            const filename = lastPath ? `${lastPath}${pageToVisit.search.replace('?', '--')}.html` : 'index.html';
             let pathname = '';
             while (pathnameSplit.length > 0) {
                 const currentPath = pathnameSplit.shift();
@@ -151,7 +151,7 @@ function main() {
     //     .catch((e) => {
     //         console.error(e);
     //     });
-    visit('https://kallosa.id/')
+    visit('https://kallosa.id')
         .catch((e) => {
             console.error(e);
         });
